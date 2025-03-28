@@ -25,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR"> 
     <head>
+              <script src="https://meet.jit.si/external_api.js" async></script>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
