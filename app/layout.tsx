@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Head from "next/head";  // Import Head from next/head
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,13 +24,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR"> 
-    <head>
-              <script src="https://meet.jit.si/external_api.js" async></script>
-      </head>
+    <>
+      <Head>
+        <script src="https://meet.jit.si/external_api.js" async></script>
+      </Head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
-    </html>
+    </>
   );
 }
