@@ -1,6 +1,6 @@
-module.exports = {
-  plugins: {
-    tailwindcss: {}, // Ativa o Tailwind CSS no PostCSS
-    autoprefixer: {}, // Adiciona prefixos automáticos para compatibilidade entre navegadores
-  },
+import tailwindcss from "tailwindcss"; // Use o tailwindcss padrão
+import autoprefixer from "autoprefixer";
+
+export default {
+  plugins: [tailwindcss, autoprefixer],
 };

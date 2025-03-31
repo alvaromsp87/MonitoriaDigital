@@ -21,7 +21,21 @@ module.exports = {
         secundario: "#90b4ce", // Cor secundária
         terciario: "#ef4565", // Cor terciária
       },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"], // Define uma fonte padrão moderna
+      },
+      borderRadius: {
+        xl: "12px", // Adiciona um padrão para bordas arredondadas
+        "2xl": "16px",
+      },
+      spacing: {
+        18: "4.5rem", // Adiciona espaçamentos personalizados
+        22: "5.5rem",
+      },
     },
   },
-  plugins: [], // Nenhum plugin adicional configurado
+  plugins: [
+    require("@tailwindcss/forms"), // Plugin para estilizar formulários
+    require("@tailwindcss/typography"), // Plugin para melhorar textos
+  ],
 };
