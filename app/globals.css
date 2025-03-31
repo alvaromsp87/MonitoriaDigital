@@ -1,6 +1,30 @@
-@import "tailwindcss";
+/* Importa os estilos base do Tailwind */
+@import "tailwindcss/preflight"; /* Reseta estilos padrão dos navegadores */
+@import "tailwindcss/utilities"; /* Habilita as classes utilitárias do Tailwind */
 
-@theme {
-  --color-primary: oklch(0.84 0.18 117.33);
-  --font-body: "Inter", sans-serif;
+:root {
+  /* Variáveis para definir cores RGB dinâmicas */
+  --foreground-rgb: 0, 0, 0; /* Cor padrão do texto */
+  --background-start-rgb: 214, 219, 220; /* Gradiente de fundo inicial */
+  --background-end-rgb: 255, 255, 255; /* Gradiente de fundo final */
+}
+
+/* Configuração do modo escuro */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255; /* Texto branco no modo escuro */
+    --background-start-rgb: 0, 0, 0; /* Gradiente de fundo inicial no modo escuro */
+    --background-end-rgb: 0, 0, 0; /* Gradiente de fundo final no modo escuro */
+  }
+}
+
+/* Estilos globais do body */
+body {
+  color: rgb(var(--foreground-rgb)); /* Define a cor do texto baseada na variável */
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb)); /* Aplica um gradiente de fundo */
 }
