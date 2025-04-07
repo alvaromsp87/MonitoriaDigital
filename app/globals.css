@@ -1,30 +1,82 @@
-/* Importa os estilos base do Tailwind */
-@import "tailwindcss/preflight"; /* Reseta estilos padrão dos navegadores */
-@import "tailwindcss/utilities"; /* Habilita as classes utilitárias do Tailwind */
+@import "tailwindcss";
 
+/* Definindo as fontes e cores principais */
 :root {
-  /* Variáveis para definir cores RGB dinâmicas */
-  --foreground-rgb: 0, 0, 0; /* Cor padrão do texto */
-  --background-start-rgb: 214, 219, 220; /* Gradiente de fundo inicial */
-  --background-end-rgb: 255, 255, 255; /* Gradiente de fundo final */
+  --color-primary: oklch(0.84 0.18 117.33);
+  --font-body: "Inter", sans-serif;
+  --font-mono: "Geist Mono", monospace;
 }
 
-/* Configuração do modo escuro */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255; /* Texto branco no modo escuro */
-    --background-start-rgb: 0, 0, 0; /* Gradiente de fundo inicial no modo escuro */
-    --background-end-rgb: 0, 0, 0; /* Gradiente de fundo final no modo escuro */
+/* Definindo as fontes locais */
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Regular.woff2') format('woff2'),
+       url('/fonts/Geist-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Regular.woff2') format('woff2'),
+       url('/fonts/GeistMono-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Estilos globais */
+body {
+  font-family: var(--font-body);
+}
+
+pre, code {
+  font-family: var(--font-mono);
+}
+/* Garante que tudo respeite a largura da tela */
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Reduz um pouco o tamanho da fonte em telas pequenas */
+  }
+
+  nav {
+    width: 100%; /* Navbar ocupa toda a largura em telas pequenas */
+    padding: 10px;
+  }
+
+  h1, h2, h3 {
+    font-size: 1.5rem; /* Tamanhos de título mais equilibrados */
   }
 }
+@media (max-width: 768px) {
+  .navbar {
+    position: fixed;
+    width: 100%;
+    height: auto;
+    bottom: 0;
+    left: 0;
+    background: var(--color-primary);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+  }
+}
+@media (max-width: 480px) {
+  body {
+    line-height: 1.6;
+  }
 
-/* Estilos globais do body */
-body {
-  color: rgb(var(--foreground-rgb)); /* Define a cor do texto baseada na variável */
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); /* Aplica um gradiente de fundo */
+  .container {
+    padding: 10px; /* Reduz o padding para economizar espaço */
+  }
+
+  button {
+    font-size: 14px; /* Botões menores para caber melhor na tela */
+    padding: 8px 12px;
+  }
 }

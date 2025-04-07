@@ -1,196 +1,172 @@
-"use client"; // Indica que o código é executado no lado do cliente em um projeto Next.js
+'use client';
+import { useEffect, useState } from 'react';
+import Navbar from '../../components/Navbar';
+import Papa from 'papaparse';
 
-import { useState } from "react"; // Importa o hook useState do React para gerenciar estados
+type Usuario = {
+  id_usuario: number;
+  nome: string;
+  email: string;
+  tipo: string;
+};
 
-export default function Cadastro() {
-  // Estado para armazenar os dados do formulário
+export default function CadastroPage() {
   const [formData, setFormData] = useState({
-    nome: "",
-    email: "",
-    senha: "",
-    curso: "",
-    especialidade: "",
-    formacao_academica: "",
-    data_nascimento: "",
-    tipo: "aluno", // Valor padrão do tipo de usuário é "aluno"
+    nome: '',
+    email: '',
+    senha: '',
+    tipo: '',
+    curso: '',
+    especialidade: '',
+    formacao_academica: '',
+    data_nascimento: '',
   });
 
-  // Função para manipular as mudanças nos campos do formulário
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value }); // Atualiza o estado do formData com o valor do campo
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [carregando, setCarregando] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+
+  const carregarUsuarios = async () => {
+    const res = await fetch('/api/usuarios');
+    const data = await res.json();
+    setUsuarios(data);
   };
 
-  // Função para lidar com o envio do formulário
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); // Impede o comportamento padrão de recarregar a página ao enviar o formulário
+  useEffect(() => {
+    carregarUsuarios();
+  }, []);
 
-    // Simula o cadastro de usuário com um alerta
-    alert("Usuário cadastrado com sucesso!");
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    // Reseta os dados do formulário após o envio
-    setFormData({
-      nome: "",
-      email: "",
-      senha: "",
-      curso: "",
-      especialidade: "",
-      formacao_academica: "",
-      data_nascimento: "",
-      tipo: "aluno",
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCarregando(true);
+
+    const res = await fetch('/api/usuarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    if (res.ok) {
+      alert('Usuário cadastrado com sucesso!');
+      setFormData({ nome: '', email: '', senha: '', tipo: '', curso: '', especialidade: '', formacao_academica: '', data_nascimento: '' });
+      carregarUsuarios();
+    } else {
+      const msg = await res.text();
+      alert(`Erro: ${msg}`);
+    }
+
+    setCarregando(false);
+  };
+
+  const handleDelete = async (id_usuario: number) => {
+    const confirm = window.confirm('Tem certeza que deseja excluir este usuário?');
+    if (!confirm) return;
+
+    const res = await fetch(`/api/usuarios/${id_usuario}`, {
+      method: 'DELETE',
+    });
+
+    if (res.ok) {
+      alert('Usuário deletado!');
+      carregarUsuarios();
+    } else {
+      alert('Erro ao deletar usuário');
+    }
+  };
+
+  const handleCSVImport = () => {
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (result: Papa.ParseResult<Record<string, string>>) => {
+        for (const row of result.data) {
+          await fetch('/api/usuarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(row),
+          });
+        }
+        alert('Importação concluída!');
+        carregarUsuarios();
+      },
     });
   };
 
+  const handleCSVExport = () => {
+    const csv = Papa.unparse(usuarios);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'usuarios.csv';
+    link.click();
+  };
+
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar - Barra lateral de navegação */}
-      <nav className="bg-gray-900 text-white w-64 p-6">
-        <h3 className="text-center text-xl font-semibold mb-6">Monitoria Digital Adm</h3>
-        <ul className="space-y-3">
-          {/* Links de navegação */}
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="/admin/dashboard">Dashboard</a></li>
-          <li><a className="bg-gray-700 px-4 py-2 rounded" href="./cadastro">Cadastro de Usuários</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="./feedbacks">Feedbacks</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="./monitoria">Cadastrar Monitorias</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-red-600 mt-4" href="\">Sair</a></li>
-        </ul>
-      </nav>
+    <div className="min-h-screen bg-gray-100">
+      <Navbar userType="admin" />
 
-      {/* Conteúdo Principal */}
-      <main className="flex-1 p-10">
-        <h2 className="text-center text-2xl font-semibold text-gray-800">Cadastrar Usuário</h2>
-        <form onSubmit={handleSubmit} className="mt-6 bg-white p-6 rounded-lg shadow-md w-full max-w-lg mx-auto">
-          
-          {/* Campo para Nome Completo */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium">Nome Completo</label>
-            <input
-              type="text"
-              name="nome"
-              value={formData.nome}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
+      <div className="max-w-6xl mx-auto p-4">
+        <h2 className="text-2xl font-bold mb-4">Cadastro de Usuários</h2>
 
-          {/* Campo para E-mail */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium">E-mail</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
-
-          {/* Campo para Senha */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium">Senha</label>
-            <input
-              type="password"
-              name="senha"
-              value={formData.senha}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
-
-          {/* Campo para Curso */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium">Curso</label>
-            <input
-              type="text"
-              name="curso"
-              value={formData.curso}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-          </div>
-
-          {/* Campo para Especialidade */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium">Especialidade</label>
-            <input
-              type="text"
-              name="especialidade"
-              value={formData.especialidade}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-          </div>
-
-          {/* Campo para Formação Acadêmica */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium">Formação Acadêmica</label>
-            <input
-              type="text"
-              name="formacao_academica"
-              value={formData.formacao_academica}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-          </div>
-
-          {/* Campo para Data de Nascimento */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium">Data de Nascimento</label>
-            <input
-              type="date"
-              name="data_nascimento"
-              value={formData.data_nascimento}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
-
-          {/* Campo para Tipo de Usuário */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium">Tipo de Usuário</label>
-            <select
-              name="tipo"
-              value={formData.tipo}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            >
-              <option value="aluno">Aluno</option>
-              <option value="monitor">Monitor</option>
-              <option value="admin">Administrador</option>
-            </select>
-          </div>
-
-          {/* Botões de Enviar e Limpar */}
-          <div className="flex justify-center gap-4 mt-6">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-            >
-              Cadastrar
-            </button>
-            <button
-              type="reset"
-              className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition"
-              onClick={() => setFormData({
-                nome: "",
-                email: "",
-                senha: "",
-                curso: "",
-                especialidade: "",
-                formacao_academica: "",
-                data_nascimento: "",
-                tipo: "aluno",
-              })}
-            >
-              Limpar
-            </button>
-          </div>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded shadow mb-6">
+          <input name="nome" placeholder="Nome" value={formData.nome} onChange={handleChange} className="border px-3 py-2 rounded" />
+          <input name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="border px-3 py-2 rounded" />
+          <input type="password" name="senha" placeholder="Senha" value={formData.senha} onChange={handleChange} className="border px-3 py-2 rounded" />
+          <select name="tipo" value={formData.tipo} onChange={handleChange} className="border px-3 py-2 rounded">
+            <option value="">Tipo</option>
+            <option value="admin">Administrador</option>
+            <option value="monitor">Monitor</option>
+            <option value="usuario">Usuário</option>
+          </select>
+          <input name="curso" placeholder="Curso" value={formData.curso} onChange={handleChange} className="border px-3 py-2 rounded" />
+          <input name="especialidade" placeholder="Especialidade" value={formData.especialidade} onChange={handleChange} className="border px-3 py-2 rounded" />
+          <input name="formacao_academica" placeholder="Formação Acadêmica" value={formData.formacao_academica} onChange={handleChange} className="border px-3 py-2 rounded" />
+          <input type="date" name="data_nascimento" value={formData.data_nascimento} onChange={handleChange} className="border px-3 py-2 rounded" />
+          <button type="submit" disabled={carregando} className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 col-span-1">
+            {carregando ? 'Salvando...' : 'Salvar'}
+          </button>
         </form>
-      </main>
+
+        {/* Importação e Exportação */}
+        <div className="mb-6 flex gap-4 items-center">
+          <input type="file" accept=".csv" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          <button onClick={handleCSVImport} className="bg-blue-500 text-white px-4 py-2 rounded">Importar CSV</button>
+          <button onClick={handleCSVExport} className="bg-yellow-500 text-white px-4 py-2 rounded">Exportar CSV</button>
+        </div>
+
+        {/* Tabela de usuários */}
+        <table className="w-full bg-white rounded shadow overflow-hidden">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="text-left p-2">Nome</th>
+              <th className="text-left p-2">Email</th>
+              <th className="text-left p-2">Tipo</th>
+              <th className="text-left p-2">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {usuarios.map((usuario) => (
+              <tr key={usuario.id_usuario} className="border-t hover:bg-gray-50">
+                <td className="p-2">{usuario.nome}</td>
+                <td className="p-2">{usuario.email}</td>
+                <td className="p-2">{usuario.tipo}</td>
+                <td className="p-2 space-x-2">
+                  <button className="text-blue-600 hover:underline">Editar</button>
+                  <button onClick={() => handleDelete(usuario.id_usuario)} className="text-red-600 hover:underline">Deletar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

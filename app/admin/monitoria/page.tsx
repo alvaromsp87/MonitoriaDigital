@@ -1,9 +1,10 @@
 "use client";
-
+import Navbar from '../../components/Navbar'; // Caminho correto para Navbar
 import { useState } from "react";
 
 // Componente de cadastro de monitorias
 export default function CadastroMonitoria() {
+  const userType: 'admin' | 'monitor' | 'student' = 'admin'; // Defina corretamente o tipo de usuário
   const [formData, setFormData] = useState<{
     disciplina: string;
     monitorId: string;
@@ -61,21 +62,12 @@ export default function CadastroMonitoria() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <nav className="bg-gray-900 text-white w-64 p-6">
-        <h3 className="text-center text-xl font-semibold mb-6">Monitoria Digital Adm</h3>
-        <ul className="space-y-3">
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="/admin/dashboard">Dashboard</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="./cadastro">Cadastro de Usuários</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="./feedbacks">Feedbacks</a></li>
-          <li><a className="bg-gray-700 px-4 py-2 rounded" href="./monitoria">Cadastrar Monitorias</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-red-600 mt-4" href="\">Sair</a></li>
-        </ul>
-      </nav>
+    <div className="flex">
+    <Navbar userType={userType} /> {/* Passando a prop userType corretamente */}
+    <div className="container mx-auto px-4 py-6 flex-1"></div>
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 p-10">
+      <main className="flex-50 p-10">
         <h2 className="text-center text-2xl font-semibold text-gray-800">Cadastrar Monitoria</h2>
         <form onSubmit={handleSubmit} className="mt-6 bg-white p-6 rounded-lg shadow-md w-full max-w-lg mx-auto">
           {/* Formulário */}

@@ -1,80 +1,88 @@
-"use client";
-import { useEffect, useRef } from "react";
-import Chart from "chart.js/auto"; // Importa a biblioteca Chart.js para criar gráficos
+"use client"; // Indica que este é um componente cliente (React)
+import Navbar from '../../components/Navbar'; // Caminho correto para Navbar
+import { useEffect, useRef } from "react"; // Importa hooks necessários do React
+import Chart from "chart.js/auto"; // Importa o Chart.js para criação de gráficos
 
 export default function Dashboard() {
-  // Cria uma referência para o elemento canvas onde o gráfico será desenhado
+  const userType: 'admin' | 'monitor' | 'student' = 'student'; // Defina corretamente o tipo de usuário
+  // Ref para o elemento canvas onde o gráfico será desenhado
   const chartRef = useRef<HTMLCanvasElement | null>(null);
+  
+  // Ref para armazenar a instância do gráfico, para poder manipulá-lo depois (como destruir ou atualizar)
+  const chartInstanceRef = useRef<Chart | null>(null); 
 
-  // Hook useEffect para rodar apenas uma vez após o primeiro render
+  // useEffect é usado para criar o gráfico quando o componente for montado
   useEffect(() => {
-    // Verifica se o canvas (chartRef.current) existe
-    if (chartRef.current) {
-      const ctx = chartRef.current.getContext("2d"); // Obtém o contexto 2D do canvas
+    // Verifica se já existe uma instância do gráfico e a destrói antes de criar uma nova
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
+    }
 
-      // Se o contexto for válido, cria o gráfico
+    // Verifica se o canvas foi referenciado corretamente
+    if (chartRef.current) {
+      const ctx = chartRef.current.getContext("2d"); // Obtém o contexto 2D para desenhar no canvas
+
+      // Se o contexto for válido, cria a nova instância do gráfico
       if (ctx) {
-        new Chart(ctx, {
-          type: "bar", // Define o tipo de gráfico como barra
+        chartInstanceRef.current = new Chart(ctx, {
+          type: "bar", // Tipo de gráfico (barras)
           data: {
-            labels: ["PW 2", "BD 2", "PAM", "APS", "DS 1", "SE"], // Labels (eixo X) do gráfico
+            // Dados para o gráfico (rótulos e valores)
+            labels: ["PW 2", "BD 2", "PAM", "APS", "DS 1", "SE"], // Rótulos no eixo X
             datasets: [
               {
-                label: "Desempenho (%)", // Título da série de dados
-                data: [80, 70, 85, 60, 90, 30], // Dados (eixo Y) do gráfico
-                backgroundColor: ["#3b82f6", "#10b981", "#facc15", "#ef4444", "#8b5cf6", "#6b7280"], // Cores para as barras
+                label: "Desempenho (%)", // Rótulo do conjunto de dados
+                data: [80, 70, 85, 60, 90, 30], // Valores para o gráfico
+                backgroundColor: ["#3b82f6", "#10b981", "#facc15", "#ef4444", "#8b5cf6", "#6b7280"], // Cores de fundo das barras
               },
             ],
           },
           options: {
-            responsive: true, // Faz o gráfico responsivo (ajustando o tamanho conforme a tela)
-            maintainAspectRatio: false, // Permite que o gráfico ajuste a altura e largura de forma independente
+            responsive: true, // O gráfico será responsivo (ajustará seu tamanho conforme a tela)
+            maintainAspectRatio: false, // Desativa a manutenção da proporção ao redimensionar
             scales: {
-              y: { beginAtZero: true }, // Define que o eixo Y começará em 0
+              y: { beginAtZero: true }, // A escala do eixo Y começa do zero
             },
           },
         });
       }
     }
-  }, []); // A dependência vazia faz com que o efeito seja executado apenas uma vez após o primeiro render
+
+    // Cleanup (limpeza): ao desmontar o componente, destrói a instância do gráfico para evitar vazamentos de memória
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+      }
+    };
+  }, []); // O array vazio garante que o gráfico seja criado apenas uma vez, quando o componente for montado
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <nav className="bg-blue-700 text-white w-64 p-6">
-        <h4 className="text-center text-xl font-semibold mb-6">Monitoria Digital</h4>
-        <ul className="space-y-3">
-          <li>
-            <a className="block px-4 py-2 rounded hover:bg-blue-500" href="./agenda">Agenda</a>
-          </li>
-          <li>
-            <a className="block px-4 py-2 rounded hover:bg-blue-500" href="./Monitoria">Monitorias</a>
-          </li>
-          <li>
-            <a className="block px-4 py-2 rounded hover:bg-blue-500" href="\">Sair</a> {/* Link para sair */}
-          </li>
-        </ul>
-      </nav>
+    <div className="flex">
+      <Navbar userType={userType} /> {/* Passando a prop userType corretamente */}
+      <div className="container mx-auto px-4 py-6 flex-1">
+        {/* Conteúdo Principal */}
+        <div className="flex-1 p-10">
+          {/* Título da página */}
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Bem-vindo ao Dashboard</h2>
 
-      {/* Conteúdo Principal */}
-      <div className="flex-1 p-10">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Bem-vindo ao Dashboard</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Agenda Placeholder */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h5 className="text-lg font-semibold mb-4">Agenda de Monitorias</h5>
-            <div className="flex justify-center items-center bg-gray-100 border h-52 text-gray-500 text-lg">
-              Calendário Placeholder {/* Placeholder para o calendário */}
+          {/* Layout em grid para exibir dois cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card da Agenda */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h5 className="text-lg font-semibold mb-4">Agenda de Monitorias</h5>
+              {/* Placeholder para o calendário de monitorias */}
+              <div className="flex justify-center items-center bg-gray-100 border h-52 text-gray-500 text-lg">
+                Calendário Placeholder
+              </div>
             </div>
-          </div>
 
-          {/* Gráfico de Desempenho */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h5 className="text-lg font-semibold mb-4">Desempenho dos Alunos</h5>
-            <div className="h-52">
-              {/* Canvas para desenhar o gráfico */}
-              <canvas ref={chartRef}></canvas>
+            {/* Card do gráfico de desempenho */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h5 className="text-lg font-semibold mb-4">Desempenho dos Alunos</h5>
+              <div className="h-52">
+                {/* Referência para o canvas onde o gráfico será desenhado */}
+                <canvas ref={chartRef}></canvas>
+              </div>
             </div>
           </div>
         </div>

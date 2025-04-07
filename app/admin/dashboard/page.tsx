@@ -1,9 +1,10 @@
 "use client"; // Indica que este é um componente cliente (React)
-
+import Navbar from '../../components/Navbar'; // Caminho correto para Navbar
 import { useEffect, useRef } from "react"; // Importa hooks necessários do React
 import Chart from "chart.js/auto"; // Importa o Chart.js para criação de gráficos
 
 export default function Dashboard() {
+  const userType: 'admin' | 'monitor' | 'student' = 'admin'; // Defina corretamente o tipo de usuário
   // Ref para o elemento canvas onde o gráfico será desenhado
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   
@@ -56,42 +57,32 @@ export default function Dashboard() {
   }, []); // O array vazio garante que o gráfico seja criado apenas uma vez, quando o componente for montado
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar de navegação */}
-      <nav className="bg-gray-900 text-white w-64 p-6">
-        <h3 className="text-center text-xl font-semibold mb-6">Monitoria Digital Adm</h3>
-        <ul className="space-y-3">
-          {/* Links de navegação */}
-          <li><a className="bg-gray-700 px-4 py-2 rounded" href="/admin/dashboard">Dashboard</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="./cadastro">Cadastro de Usuários</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="./feedbacks">Feedbacks</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-gray-700" href="./monitoria">Cadastrar Monitorias</a></li>
-          <li><a className="block px-4 py-2 rounded hover:bg-red-600 mt-4" href="\">Sair</a></li>
-        </ul>
-      </nav>
+    <div className="flex">
+      <Navbar userType={userType} /> {/* Passando a prop userType corretamente */}
+      <div className="container mx-auto px-4 py-6 flex-1">
+        {/* Conteúdo Principal */}
+        <div className="flex-1 p-10">
+          {/* Título da página */}
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Bem-vindo ao Dashboard</h2>
 
-      {/* Conteúdo Principal */}
-      <div className="flex-1 p-10">
-        {/* Título da página */}
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Bem-vindo ao Dashboard</h2>
-
-        {/* Layout em grid para exibir dois cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Card da Agenda */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h5 className="text-lg font-semibold mb-4">Agenda de Monitorias</h5>
-            {/* Placeholder para o calendário de monitorias */}
-            <div className="flex justify-center items-center bg-gray-100 border h-52 text-gray-500 text-lg">
-              Calendário Placeholder
+          {/* Layout em grid para exibir dois cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card da Agenda */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h5 className="text-lg font-semibold mb-4">Agenda de Monitorias</h5>
+              {/* Placeholder para o calendário de monitorias */}
+              <div className="flex justify-center items-center bg-gray-100 border h-52 text-gray-500 text-lg">
+                Calendário Placeholder
+              </div>
             </div>
-          </div>
 
-          {/* Card do gráfico de desempenho */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h5 className="text-lg font-semibold mb-4">Desempenho dos Alunos</h5>
-            <div className="h-52">
-              {/* Referência para o canvas onde o gráfico será desenhado */}
-              <canvas ref={chartRef}></canvas>
+            {/* Card do gráfico de desempenho */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h5 className="text-lg font-semibold mb-4">Desempenho dos Alunos</h5>
+              <div className="h-52">
+                {/* Referência para o canvas onde o gráfico será desenhado */}
+                <canvas ref={chartRef}></canvas>
+              </div>
             </div>
           </div>
         </div>
